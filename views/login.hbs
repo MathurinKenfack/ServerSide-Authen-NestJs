@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>Login</title>
+    <link rel='stylesheet' href='./css/style.css' />
+    <link rel='stylesheet' href='./css/login.css' />
+    <script type='text/javascript' src='./js/formValidation.js'></script>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='content'>
+        <div class='form-modal'>
+          <span class='title-form'>Log In</span>
+          <form class='form' action={{url}} method='post'>
+            <div class='input-block'>
+              <label for='email' class='input-label'>Email</label>
+              <input
+                type='email'
+                name='email'
+                class='input-field'
+                required
+                onchange='validateEmail(this.value);'
+                placeholder='email@email.cm'
+              />
+              <span class='error-email'></span>
+            </div>
+            <div class='input-block'>
+              <label for='password' class='input-label'>Password</label>
+              <input
+                type='password'
+                name='password'
+                required
+                min='4'
+                max='8'
+                class='input-field'
+                onchange='validatePassword(this.value);'
+                placeholder='***********'
+              />
+              <span class='error-password'></span>
+            </div>
+            <div class='form-btns'>
+              <input
+                type='submit'
+                value='Login'
+                class='btn btn-login'
+                name='submit'
+              />
+            </div>
+          </form>
+        </div>
+        <hr class='divider' />
+        <div class='alternative-group'>
+          <button class='btn btn-google'>Google</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

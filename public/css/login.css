@@ -1,0 +1,100 @@
+.content .divider {
+  margin-bottom: 5px;
+  background-color: rgb(109, 109, 109);
+  height: 1px;
+  border: none;
+  font-size: 0.8em;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  width: 90%;
+}
+
+.form-modal .form {
+  width: 100%;
+  display: flex;
+  padding: 5px 20px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form .input-block {
+  display: flex;
+  width: 100%;
+  padding: 8px 0px;
+  flex-direction: column;
+}
+
+.input-block .input-label {
+  font-size: 1em;
+  padding: 5px 0px;
+  width: 100%;
+}
+
+.input-block .input-field {
+  border: none;
+  border-radius: 5px;
+  padding: 10px 5px;
+  width: 100%;
+}
+
+.input-block .input-field.error {
+  border: 2px solid rgb(149, 23, 23);
+}
+
+.input-block .error-email,
+.input-block .error-password {
+  display: none;
+}
+
+.input-block .error-email.active,
+.input-block .error-password.active {
+  display: flex;
+  padding: 8px 10px;
+  margin: 8px 0px;
+  max-width: 320px;
+  font-size: 0.8em;
+  flex-direction: column;
+  background-color: rgb(228, 156, 156);
+  color: rgb(64, 7, 7);
+  align-items: center;
+}
+
+.form .form-btns {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  padding: 20px 0px;
+}
+
+.content .alternative-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 5px 20px;
+}
+
+.alternative-group .btn.btn-google {
+  background-color: rgb(58, 186, 237);
+  color: rgb(24, 24, 24);
+}
+
+.btn.btn-google:hover {
+  background-color: rgb(75, 174, 174);
+}
+
+.btn.btn-login {
+  background-color: greenyellow;
+}
+
+.btn.btn-login:hover {
+  background-color: rgb(171, 234, 76);
+}
+
+.btn.btn-login:disabled,
+.btn.btn-login:disabled:hover {
+  background-color: rgb(67, 67, 67);
+  color: white;
+}
