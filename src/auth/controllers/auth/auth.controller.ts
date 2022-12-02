@@ -2,25 +2,55 @@ import {
   Controller,
   UseGuards,
   Post,
-  Session,
   Get,
   Req,
   Res,
+  HttpException,
+  HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { AuthenticatedGuard, LocalAuthGuard } from '../../utils/LocalGuards';
+import passport from 'passport';
+import { Request as RequestExp, Response as ResponseExp } from 'express';
+import {
+  AuthenticatedGuard,
+  GoogleOauthGuard,
+  JwtAuthGuard,
+  LocalAuthGuard,
+} from '../../utils/LocalGuards';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Controller('auth')
 export class AuthController {
+  constructor(
+    @Inject('AUTH_SERVICE') private readonly authService: AuthService,
+  ) {}
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Res() response: Response) {
-    return response.redirect('/');
+  async login(@Req() req: RequestExp, @Res() response: ResponseExp) {
+    const token = await this.authService.loginUser(req.user);
+    response
+      .cookie('authorization', token.access_token, {
+        httpOnly: true,
+        secure: false,
+      })
+      .redirect('/');
   }
 
-  @UseGuards(AuthenticatedGuard)
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuth() {}
+
+  // @UseGuards(AuthenticatedGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('status')
-  async getAuthStatus(@Req() req: Request) {
-    return req['user'];
+  async getAuthStatus(@Req() req: RequestExp) {
+    return req.user;
+  }
+
+  @Get('logout')
+  async logout(@Req() req: RequestExp, @Res() response: ResponseExp) {
+    response.clearCookie('authorization');
+    response.redirect('/');
   }
 }

@@ -50,6 +50,10 @@ body {
 
 .btn.btn-logout {
   margin-top: 50px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 80%;
   background-color: rgb(254, 47, 47);
   color: rgb(40, 2, 2);

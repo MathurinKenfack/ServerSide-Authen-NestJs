@@ -4,5 +4,4 @@ export interface UserI {
   lastName: string;
   email: string;
   password: string;
-  googleAuth: boolean;
 }

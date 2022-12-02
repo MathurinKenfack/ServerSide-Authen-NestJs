@@ -9,9 +9,11 @@ import {
   ValidationPipe,
   HttpStatus,
   HttpException,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from '../../../users/dto/CreateUser.dto';
-import { UsersService } from '../../../users/services/users/users.service';
+import { CreateUserDto } from '../../dto/CreateUser.dto';
+import { UsersService } from '../../services/users/users.service';
 
 @Controller('users')
 export class UsersController {
@@ -19,12 +21,14 @@ export class UsersController {
     @Inject('USERS_SERVICE') private readonly usersService: UsersService,
   ) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('')
   async getAllCustomers() {
     const customers = await this.usersService.getAllUsers();
     return customers;
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':email')
   getUser(@Param('email') email: string) {
     const user = this.usersService.getUserByEmail(email);

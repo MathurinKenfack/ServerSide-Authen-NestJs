@@ -1,5 +1,5 @@
 const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-const passwordRegex = /^(?=.*\d).{4,10}$/;
+const passwordRegex = /^(?=.*\d).{4,}$/;
 function validateEmail(input) {
   var matched = emailRegex.test(input);
   var errorSpan = document.getElementsByClassName('error-email')[0];
@@ -25,7 +25,7 @@ function validatePassword(input) {
     errorSpan2.classList.add('active');
     inputPassword.classList.add('error');
     errorSpan2.innerHTML =
-      'Password must be at least 4 character long and 8 character maximum. It must contains a number';
+      'Password must be at least 4 character long. It must contains a number.';
   } else {
     errorSpan2.classList.remove('active');
     errorSpan2.innerHTML = '';

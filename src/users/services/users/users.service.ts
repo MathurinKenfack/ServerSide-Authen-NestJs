@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../../dto/CreateUser.dto';
 import { encodePassword } from '../../../utils/bcrypt';
+import { SerializedUser } from '../../types/User.serialized';
 
 @Injectable()
 export class UsersService {
@@ -14,16 +15,20 @@ export class UsersService {
 
   async getAllUsers() {
     return this.usersRepository.find().then((users) => {
-      return users;
+      return users.map((user) => new SerializedUser(user));
     });
   }
 
   getUserById(id: number) {
-    return this.usersRepository.findOneBy({ id });
+    return this.usersRepository.findOneBy({ id }).then((u) => {
+      return new SerializedUser(u);
+    });
   }
 
   getUserByEmail(email: string) {
-    return this.usersRepository.findOneBy({ email: email });
+    return this.usersRepository.findOneBy({ email: email }).then((u) => {
+      return new SerializedUser(u);
+    });
   }
 
   createUser(user: CreateUserDto) {
@@ -31,7 +36,6 @@ export class UsersService {
     const newUser = this.usersRepository.create({
       ...user,
       password: passwordHashed,
-      googleAuth: false,
     });
     return this.usersRepository.save(newUser);
   }
