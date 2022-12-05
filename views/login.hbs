@@ -11,7 +11,7 @@
       <div class='content'>
         <div class='form-modal'>
           <span class='title-form'>Log In</span>
-          <form class='form' action={{url}} method='post'>
+          <form class='form' action={{actionUrl}} method='post'>
             <div class='input-block'>
               <label for='email' class='input-label'>Email</label>
               <input
@@ -50,7 +50,11 @@
         </div>
         <hr class='divider' />
         <div class='alternative-group'>
-          <button class='btn btn-google'>Google</button>
+          <a
+            class='btn btn-google'
+            href='{{googleUrl}}'
+            target='_blank'
+          >Google</a>
         </div>
       </div>
     </div>

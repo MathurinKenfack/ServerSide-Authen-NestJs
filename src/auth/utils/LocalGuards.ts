@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
 @Injectable()
@@ -35,7 +36,11 @@ export class JwtAuthGuard extends AuthGuard('jwt2') {
 }
 
 @Injectable()
-export class GoogleOauthGuard extends AuthGuard('google') {}
+export class GoogleOauthGuard extends AuthGuard('google') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
+}
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {

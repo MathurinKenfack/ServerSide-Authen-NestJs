@@ -1,15 +1,20 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { comaparePasswords } from '../../../utils/bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Request as RequestExp } from 'express';
 import { UsersService } from '../../../users/services/users/users.service';
 import { UserI } from '../../../users/types/User.interface';
 import { SerializedUser } from '../../../users/types/User.serialized';
+import { JWTPayload } from '../../types/JWTPayload';
+import { GooglePayload } from '../../types/GooglePayload';
+import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('USERS_SERVICE') private readonly usersService: UsersService,
     private jwtService: JwtService,
+    private readonly recaptchaValidator: GoogleRecaptchaValidator,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -38,15 +43,20 @@ export class AuthService {
     return jwt;
   }
 
-  async googleLoginUser(user: any) {
-    if (!user) {
+  async googleLoginUser(req: RequestExp) {
+    if (!req.user) {
       throw new BadRequestException('Unauthenticated');
     }
-
+    const user = <GooglePayload>req.user;
     const userExists = await this.usersService.getUserByEmail(user.email);
 
     if (!userExists) {
-      const newUser = await this.usersService.createUser(user);
+      const [firstName, lastName] = user.username.split(' ');
+      const newUser = await this.usersService.createGoogleUser({
+        firstName: firstName,
+        lastName: lastName,
+        email: user.email,
+      });
       return this.jwtService.sign({
         email: newUser.email,
         username: newUser.firstName + ' ' + newUser.lastName,

@@ -1,5 +1,6 @@
 const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
 const passwordRegex = /^(?=.*\d).{4,}$/;
+
 function validateEmail(input) {
   var matched = emailRegex.test(input);
   var errorSpan = document.getElementsByClassName('error-email')[0];

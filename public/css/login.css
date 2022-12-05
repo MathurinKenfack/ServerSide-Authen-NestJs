@@ -78,6 +78,9 @@
 
 .alternative-group .btn.btn-google {
   background-color: rgb(58, 186, 237);
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
   color: rgb(24, 24, 24);
 }
 

@@ -5,19 +5,24 @@ import {
   Get,
   Req,
   Res,
+  Request,
   HttpException,
   HttpStatus,
   Inject,
 } from '@nestjs/common';
 import passport from 'passport';
-import { Request as RequestExp, Response as ResponseExp } from 'express';
 import {
-  AuthenticatedGuard,
+  Request as RequestExp,
+  response,
+  Response as ResponseExp,
+} from 'express';
+import {
   GoogleOauthGuard,
   JwtAuthGuard,
   LocalAuthGuard,
 } from '../../utils/LocalGuards';
 import { AuthService } from '../../services/auth/auth.service';
+import { Recaptcha } from '@nestlab/google-recaptcha';
 
 @Controller('auth')
 export class AuthController {
@@ -39,9 +44,19 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async googleAuth() {}
+  async googleAuth(@Req() req) {}
 
-  // @UseGuards(AuthenticatedGuard)
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthRedirect(@Req() req, @Res() response: ResponseExp) {
+    console.log('google authentication redirect');
+    const token = await this.authService.googleLoginUser(req);
+
+    response
+      .cookie('authorization', token, { httpOnly: true, secure: false })
+      .redirect('/');
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('status')
   async getAuthStatus(@Req() req: RequestExp) {
