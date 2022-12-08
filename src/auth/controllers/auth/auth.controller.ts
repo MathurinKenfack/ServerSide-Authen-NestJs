@@ -5,25 +5,18 @@ import {
   Get,
   Req,
   Res,
-  Request,
-  HttpException,
-  HttpStatus,
   Inject,
 } from '@nestjs/common';
-import passport from 'passport';
-import {
-  Request as RequestExp,
-  response,
-  Response as ResponseExp,
-} from 'express';
+import { Request as RequestExp, Response as ResponseExp } from 'express';
 import {
   GoogleOauthGuard,
-  JwtAuthGuard,
+  AccessTokenGuard,
+  RefreshTokenGuard,
   LocalAuthGuard,
 } from '../../utils/LocalGuards';
 import { AuthService } from '../../services/auth/auth.service';
 import { Recaptcha } from '@nestlab/google-recaptcha';
-
+import { AUH_URL, HOME_URL } from 'src/utils/fomActions';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -31,20 +24,25 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalAuthGuard)
+  @Recaptcha()
   @Post('login')
   async login(@Req() req: RequestExp, @Res() response: ResponseExp) {
     const token = await this.authService.loginUser(req.user);
     response
-      .cookie('authorization', token.access_token, {
+      .cookie('api-token', token.accessToken, {
         httpOnly: true,
         secure: false,
       })
-      .redirect('/');
+      .cookie('auth-token', token.refreshToken, {
+        httpOnly: true,
+        secure: false,
+      })
+      .redirect(303, HOME_URL);
   }
 
   @Get('google')
   @UseGuards(GoogleOauthGuard)
-  async googleAuth(@Req() req) {}
+  async googleAuth(@Req() req: RequestExp) {}
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
@@ -53,19 +51,46 @@ export class AuthController {
     const token = await this.authService.googleLoginUser(req);
 
     response
-      .cookie('authorization', token, { httpOnly: true, secure: false })
-      .redirect('/');
+      .cookie('api-token', token.accessToken, {
+        httpOnly: true,
+        secure: false,
+      })
+      .cookie('auth-token', token.refreshToken, {
+        httpOnly: true,
+        secure: false,
+      })
+      .redirect(303, HOME_URL);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  async refreshAccessToken(
+    @Req() req: RequestExp,
+    @Res() response: ResponseExp,
+  ) {
+    const refreshToken = req.user['refreshToken'];
+    const newAccessToken =
+      await this.authService.createAccessTokenFromRefreshToken(refreshToken);
+    response
+      .cookie('api-token', newAccessToken, {
+        httpOnly: true,
+        secure: false,
+      })
+      .redirect(303, HOME_URL);
+  }
+
+  @UseGuards(AccessTokenGuard)
   @Get('status')
   async getAuthStatus(@Req() req: RequestExp) {
     return req.user;
   }
 
+  @UseGuards(AccessTokenGuard)
   @Get('logout')
   async logout(@Req() req: RequestExp, @Res() response: ResponseExp) {
-    response.clearCookie('authorization');
-    response.redirect('/');
+    this.authService.logout(req.user['id']);
+    response.clearCookie('api-token');
+    response.clearCookie('auth-token');
+    response.redirect(303, AUH_URL);
   }
 }

@@ -1,13 +1,22 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { comaparePasswords } from '../../../utils/bcrypt';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  comapareData,
+  comaparePasswords,
+  encodeData,
+} from '../../../utils/bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Request as RequestExp } from 'express';
 import { UsersService } from '../../../users/services/users/users.service';
-import { UserI } from '../../../users/types/User.interface';
-import { SerializedUser } from '../../../users/types/User.serialized';
-import { JWTPayload } from '../../types/JWTPayload';
 import { GooglePayload } from '../../types/GooglePayload';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
+import { RefreshPayload } from 'src/auth/types/JWTPayload';
 
 @Injectable()
 export class AuthService {
@@ -19,28 +28,89 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const userDB = await this.usersService.getUserByEmail(email);
-    console.log('validate user');
     if (userDB) {
       const matched = comaparePasswords(password, userDB.password);
-
       if (matched) {
         return userDB;
       } else {
-        return null;
+        throw new BadRequestException('Password is incorrect.');
       }
     }
-    return null;
+    throw new BadRequestException('User does not exist.');
+  }
+
+  async getTokens(payload: { id: number }) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: process.env.ACCESS_TOKEN_SECRET,
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  async updateRefreshToken(id: number, refreshToken: string) {
+    const hashedRefreshToken = encodeData(refreshToken);
+    await this.usersService.updateUserRefreshToken(id, {
+      refreshToken: hashedRefreshToken,
+    });
+  }
+
+  async createAccessTokenFromRefreshToken(refreshToken: string) {
+    try {
+      const decodedRefresh = this.jwtService.decode(
+        refreshToken,
+      ) as RefreshPayload;
+      if (!decodedRefresh) {
+        throw new UnauthorizedException('Expired Session.');
+      }
+      const user = await this.usersService.getUserById(decodedRefresh.id);
+
+      if (!user) {
+        console.error('User not found.');
+        throw new NotFoundException('User does not exist.');
+      } else if (!user.refreshToken) {
+        console.error('Access denied');
+        throw new ForbiddenException('Access Denied.');
+      }
+      const isRefreshTokenMatching = comapareData(
+        refreshToken,
+        user.refreshToken,
+      );
+
+      if (!isRefreshTokenMatching) {
+        throw new UnauthorizedException('Invalid Token');
+      }
+
+      await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+      });
+
+      return await this.jwtService.signAsync(
+        { id: user.id },
+        {
+          secret: process.env.ACCESS_TOKEN_SECRET,
+          expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
+        },
+      );
+    } catch {
+      throw new UnauthorizedException('Invalid token.');
+    }
   }
 
   async loginUser(user: any) {
+    console.log('In Login user');
     const payload = {
-      email: user.email,
-      username: user.firstName + ' ' + user.lastName,
+      id: user.id,
     };
-    const jwt = {
-      access_token: this.jwtService.sign(payload),
-    };
-    return jwt;
+    const tokens = await this.getTokens(payload);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
   }
 
   async googleLoginUser(req: RequestExp) {
@@ -57,15 +127,17 @@ export class AuthService {
         lastName: lastName,
         email: user.email,
       });
-      return this.jwtService.sign({
-        email: newUser.email,
-        username: newUser.firstName + ' ' + newUser.lastName,
-      });
+      const tokens = await this.getTokens({ id: newUser.id });
+      await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+      return tokens;
     }
 
-    return this.jwtService.sign({
-      email: userExists.email,
-      username: userExists.firstName + ' ' + userExists.lastName,
-    });
+    const tokens = await this.getTokens({ id: userExists.id });
+    await this.updateRefreshToken(userExists.id, tokens.refreshToken);
+    return tokens;
+  }
+
+  async logout(id: number) {
+    await this.updateRefreshToken(id, null);
   }
 }

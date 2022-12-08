@@ -40,14 +40,20 @@ function validateSubmit() {
   var inputPassword = document.getElementsByName('password')[0];
   var inputEmail = document.getElementsByName('email')[0];
   var submit = document.getElementsByName('submit')[0];
-
+  var recaptcha = grecaptcha.getResponse();
   var match =
     inputPassword.classList.contains('error') ||
-    inputEmail.classList.contains('error');
+    inputEmail.classList.contains('error') ||
+    recaptcha === '';
 
   if (match) {
     submit.setAttribute('disabled', true);
   } else {
     submit.removeAttribute('disabled');
   }
+}
+
+function resetRecaptcha() {
+  grecaptcha.reset();
+  return true;
 }

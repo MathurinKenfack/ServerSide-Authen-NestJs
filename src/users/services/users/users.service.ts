@@ -7,6 +7,7 @@ import { encodePassword } from '../../../utils/bcrypt';
 import { SerializedUser } from '../../types/User.serialized';
 import { CreateGoogleUserDto } from '../../dto/CreateGoogleUser.dto';
 import { captitaliseWord } from '../../../utils/helpers';
+import { UpdateUserRefreshTokenDto } from '../../dto/UpdateUserRefreshToken.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,11 +26,11 @@ export class UsersService {
   }
 
   getUserById(id: number) {
-    return this.usersRepository.findOneBy({ id }).then((u) => {
-      if (u === null) {
-        return null;
+    return this.usersRepository.findOneBy({ id: id }).then((user) => {
+      if (user?.id) {
+        return new SerializedUser(user);
       }
-      return new SerializedUser(u);
+      return null;
     });
   }
 
@@ -42,6 +43,13 @@ export class UsersService {
     });
   }
 
+  async updateUserRefreshToken(
+    id: number,
+    updateUserRefreshDto: UpdateUserRefreshTokenDto,
+  ) {
+    return await this.usersRepository.update({ id: id }, updateUserRefreshDto);
+  }
+
   createUser(user: CreateUserDto) {
     const passwordHashed = encodePassword(user.password);
     const newUser = this.usersRepository.create({
@@ -49,8 +57,11 @@ export class UsersService {
       firstName: captitaliseWord(user.firstName),
       lastName: captitaliseWord(user.lastName),
       password: passwordHashed,
+      refreshToken: null,
     });
-    return this.usersRepository.save(newUser);
+    return this.usersRepository.save(newUser).then((u) => {
+      return new SerializedUser(u);
+    });
   }
 
   createGoogleUser(user: CreateGoogleUserDto) {
@@ -58,6 +69,7 @@ export class UsersService {
       ...user,
       firstName: captitaliseWord(user.firstName),
       lastName: captitaliseWord(user.lastName),
+      refreshToken: null,
     });
   }
 }

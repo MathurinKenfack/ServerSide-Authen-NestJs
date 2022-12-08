@@ -4,14 +4,21 @@
     <title>Login</title>
     <link rel='stylesheet' href='./css/style.css' />
     <link rel='stylesheet' href='./css/login.css' />
+    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
     <script type='text/javascript' src='./js/formValidation.js'></script>
   </head>
-  <body>
+  <body onload='resetRecaptcha();'>
     <div class='container'>
       <div class='content'>
         <div class='form-modal'>
           <span class='title-form'>Log In</span>
-          <form class='form' action={{actionUrl}} method='post'>
+          <form
+            class='form'
+            name='loginform'
+            action={{actionUrl}}
+            method='post'
+            id='login-form'
+          >
             <div class='input-block'>
               <label for='email' class='input-label'>Email</label>
               <input
@@ -31,7 +38,7 @@
                 name='password'
                 required
                 min='4'
-                max='8'
+                autocomplete='current-password'
                 class='input-field'
                 onchange='validatePassword(this.value);'
                 placeholder='***********'
@@ -39,6 +46,12 @@
               <span class='error-password'></span>
             </div>
             <div class='form-btns'>
+              <div
+                class='g-recaptcha'
+                data-sitekey='{{key}}'
+                data-callback='validateSubmit'
+                data-expired-callback='validateSubmit'
+              ></div>
               <input
                 type='submit'
                 value='Login'

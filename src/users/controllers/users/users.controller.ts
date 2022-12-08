@@ -37,6 +37,7 @@ export class UsersController {
     else throw new HttpException('Customer Not Found!', HttpStatus.BAD_REQUEST);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('create')
   @UsePipes(ValidationPipe)
   createUser(@Body() createUserDto: CreateUserDto) {

@@ -7,29 +7,22 @@ import { AuthController } from './controllers/auth/auth.controller';
 import { AuthService } from './services/auth/auth.service';
 import { LocalStrategy } from './utils/LocalStrategy';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './utils/JwtStrategy';
+import { AccessTokenStrategy, RefreshTokenStrategy } from './utils/JwtStrategy';
 import { JwtSerializer } from './utils/JwtSerializer';
-import { SessionSerializer } from './utils/SessionSerializer';
 import { GoogleStrategy } from './utils/googleStrategy';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
-import { IncomingMessage } from 'http';
+import { GoogleRecaptchaNetwork } from '@nestlab/google-recaptcha/enums/google-recaptcha-network';
 
-const Jwt = JwtModule.register({
-  secret: process.env.JWT_KEY,
-  signOptions: { expiresIn: '5h' },
-});
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule.register({ jwt: true }),
     GoogleRecaptchaModule.forRoot({
-      secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
-      response: (req: IncomingMessage) =>
-        (req.headers.recaptcha || '').toString(),
-      actions: ['SignUp', 'SignIn'],
-      score: 0.8,
+      secretKey: process.env.RECAPTCHA_SECRET_KEY,
+      response: (req) => req.body['g-recaptcha-response'],
+      network: GoogleRecaptchaNetwork.Recaptcha,
     }),
-    Jwt,
+    JwtModule.register({}),
   ],
   controllers: [AuthController],
   providers: [
@@ -42,10 +35,10 @@ const Jwt = JwtModule.register({
       useClass: UsersService,
     },
     LocalStrategy,
-    JwtStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
     GoogleStrategy,
     JwtSerializer,
   ],
-  exports: [Jwt],
 })
 export class AuthModule {}
