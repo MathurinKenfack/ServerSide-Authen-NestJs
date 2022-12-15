@@ -1,6 +1,6 @@
-import { UserEntity } from '../users/types/User.entity';
-const entities = [UserEntity];
+import { User } from '../users/types/User.entity';
+const entities = [User];
 
-export { UserEntity };
+export { User };
 
 export default entities;

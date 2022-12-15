@@ -1,5 +1,5 @@
 export interface GooglePayload {
-  email: string;
-  username: string;
-  accessToken: string;
+	email: string;
+	username: string;
+	accessToken: string;
 }

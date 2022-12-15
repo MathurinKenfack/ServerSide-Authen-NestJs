@@ -1,17 +1,22 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersService } from './services/users/users.service';
-import { UserEntity } from './types/User.entity';
+import { User } from './types/User.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './controllers/users/users.controller';
+import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
-  providers: [
-    {
-      provide: 'USERS_SERVICE',
-      useClass: UsersService,
-    },
-  ],
-  controllers: [UsersController],
+	imports: [TypeOrmModule.forFeature([User])],
+	providers: [
+		{
+			provide: 'USERS_SERVICE',
+			useClass: UsersService,
+		},
+	],
+	controllers: [UsersController],
 })
-export class UsersModule {}
+export class UsersModule implements NestModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(LoggerMiddleware).forRoutes('users');
+	}
+}

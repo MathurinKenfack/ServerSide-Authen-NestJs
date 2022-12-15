@@ -1,80 +1,109 @@
 * {
-  margin: 0px;
-  padding: 0px;
-  box-sizing: border-box;
-  font-family: sans-serif;
+	margin: 0px;
+	padding: 0px;
+	box-sizing: border-box;
+	font-family: sans-serif;
 }
 
 body {
-  scroll-behavior: smooth;
+	scroll-behavior: smooth;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 10px 20px;
 }
 
 .container .content {
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 10px;
-  padding: 20px 10px;
-  background-color: gainsboro;
+	min-width: 300px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 10px;
+	padding: 20px 10px;
+	background-color: gainsboro;
 }
 
 .form-modal .title-form {
-  font-size: 1.5em;
-  font-weight: bold;
-  padding: 20px 0px;
+	font-size: 1.5em;
+	width: 100%;
+	align-items: center;
+	flex-direction: column;
+	display: flex;
+	font-weight: bold;
+	padding: 20px 80px;
+}
+
+.form-modal .text-form {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	font-size: 0.75em;
+	align-items: center;
+	padding: 0px 20px;
+	padding-bottom: 20px;
+	text-align: justify;
 }
 
 .content .form-modal {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .btn {
-  width: 100%;
-  margin: 10px 0px;
-  padding: 10px 5px;
-  border: none;
-  font-size: 0.9em;
-  border-radius: 5px;
-  font-weight: bold;
+	width: 100%;
+	margin: 10px 0px;
+	padding: 10px 5px;
+	border: none;
+	font-size: 0.9em;
+	border-radius: 5px;
+	font-weight: bold;
 }
 
 .btn.btn-logout {
-  margin-top: 50px;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-  background-color: rgb(254, 47, 47);
-  color: rgb(40, 2, 2);
+	margin-top: 50px;
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 80%;
+	background-color: rgb(254, 47, 47);
+	color: rgb(40, 2, 2);
 }
 
 .btn.btn-logout:hover {
-  background-color: rgb(136, 36, 36);
+	background-color: rgb(136, 36, 36);
 }
 
 .btn.btn-redirect {
-  margin-top: 50px;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-  background-color: rgb(28, 254, 167);
-  color: rgb(2, 59, 38);
+	margin-top: 50px;
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 80%;
+	background-color: rgb(28, 254, 167);
+	color: rgb(2, 59, 38);
 }
 
 .btn.btn-redirect:hover {
-  background-color: rgb(32, 116, 83);
+	background-color: rgb(32, 116, 83);
+}
+
+.btn.btn-reset {
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	background-color: rgb(2, 91, 146);
+	color: white;
+}
+
+.link {
+	margin: 10px 0px;
 }

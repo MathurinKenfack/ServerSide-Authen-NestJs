@@ -1,75 +1,93 @@
 <html>
-  <head>
-    <meta charset='utf-8' />
-    <title>Login</title>
-    <link rel='stylesheet' href='./css/style.css' />
-    <link rel='stylesheet' href='./css/login.css' />
-    <script src='https://www.google.com/recaptcha/api.js' async defer></script>
-    <script type='text/javascript' src='./js/formValidation.js'></script>
-  </head>
-  <body onload='resetRecaptcha();'>
-    <div class='container'>
-      <div class='content'>
-        <div class='form-modal'>
-          <span class='title-form'>Log In</span>
-          <form
-            class='form'
-            name='loginform'
-            action={{actionUrl}}
-            method='post'
-            id='login-form'
-          >
-            <div class='input-block'>
-              <label for='email' class='input-label'>Email</label>
-              <input
-                type='email'
-                name='email'
-                class='input-field'
-                required
-                onchange='validateEmail(this.value);'
-                placeholder='email@email.cm'
-              />
-              <span class='error-email'></span>
-            </div>
-            <div class='input-block'>
-              <label for='password' class='input-label'>Password</label>
-              <input
-                type='password'
-                name='password'
-                required
-                min='4'
-                autocomplete='current-password'
-                class='input-field'
-                onchange='validatePassword(this.value);'
-                placeholder='***********'
-              />
-              <span class='error-password'></span>
-            </div>
-            <div class='form-btns'>
-              <div
-                class='g-recaptcha'
-                data-sitekey='{{key}}'
-                data-callback='validateSubmit'
-                data-expired-callback='validateSubmit'
-              ></div>
-              <input
-                type='submit'
-                value='Login'
-                class='btn btn-login'
-                name='submit'
-              />
-            </div>
-          </form>
-        </div>
-        <hr class='divider' />
-        <div class='alternative-group'>
-          <a
-            class='btn btn-google'
-            href='{{googleUrl}}'
-            target='_blank'
-          >Google</a>
-        </div>
-      </div>
-    </div>
-  </body>
+	<head>
+		<meta charset='utf-8' />
+		<title>Login</title>
+		<link rel='stylesheet' href='./css/style.css' />
+		<link rel='stylesheet' href='./css/login.css' />
+		<script
+			src='https://www.google.com/recaptcha/api.js'
+			async
+			defer
+		></script>
+		<script type='text/javascript' src='./js/formValidation.js'></script>
+	</head>
+	<body onload='resetRecaptcha();'>
+		<div class='container'>
+			<div class='content'>
+				<div class='form-modal'>
+					<span class='title-form'>Log In</span>
+					<form
+						class='form'
+						name='loginform'
+						action={{actionUrl}}
+						method='post'
+						id='login-form'
+					>
+						<div class='input-block'>
+							<label for='email' class='input-label'>Email</label>
+							<input
+								type='email'
+								name='email'
+								class='input-field'
+								required
+								onchange='validateEmail(this.value);'
+								placeholder='email@email.cm'
+							/>
+							<span class='error-email'></span>
+						</div>
+						<div class='input-block'>
+							<label
+								for='password'
+								class='input-label'
+							>Password</label>
+							<input
+								type='password'
+								name='password'
+								required
+								min='4'
+								autocomplete='current-password'
+								class='input-field'
+								onchange='validatePassword(this.value);'
+								placeholder='***********'
+							/>
+							<span class='error-password'></span>
+						</div>
+						<div class='input-block'>
+							<a
+								href='{{forgotPasswordUrl}}'
+								class='forgot-link'
+							>forgot your password?</a>
+						</div>
+						<div class='form-btns'>
+							<div
+								class='g-recaptcha'
+								data-sitekey='{{key}}'
+								data-callback='validateSubmit'
+								data-expired-callback='validateSubmit'
+							></div>
+							<input
+								type='submit'
+								value='Login'
+								class='btn btn-login'
+								name='submit'
+							/>
+							<input
+								type='hidden'
+								name='_csrf'
+								value='{{csrf}}'
+							/>
+						</div>
+					</form>
+				</div>
+				<hr class='divider' />
+				<div class='alternative-group'>
+					<a
+						class='btn btn-google'
+						href='{{googleUrl}}'
+						target='_blank'
+					>Google</a>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

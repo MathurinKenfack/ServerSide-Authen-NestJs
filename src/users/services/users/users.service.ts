@@ -1,75 +1,144 @@
-import { Injectable } from '@nestjs/common';
-import { UserEntity } from '../../../typeorm';
+import { Injectable, Logger } from '@nestjs/common';
+import { User } from '../../../typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../../dto/CreateUser.dto';
 import { encodePassword } from '../../../utils/bcrypt';
 import { SerializedUser } from '../../types/User.serialized';
 import { CreateGoogleUserDto } from '../../dto/CreateGoogleUser.dto';
-import { captitaliseWord } from '../../../utils/helpers';
-import { UpdateUserRefreshTokenDto } from '../../dto/UpdateUserRefreshToken.dto';
+import { capitalizeWord } from '../../../utils/helpers';
+import { UpdateUserDto } from '../../dto/UpdateUser.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>,
-  ) {}
+	constructor(
+		@InjectRepository(User)
+		private usersRepository: Repository<User>,
+	) {}
+	private readonly logger = new Logger(UsersService.name);
 
-  async getAllUsers() {
-    return this.usersRepository.find().then((users) => {
-      if (users.length === 0) {
-        return [];
-      }
-      return users.map((user) => new SerializedUser(user));
-    });
-  }
+	async getAllUsers() {
+		this.logger.log({ report: 'Get all Users.' }, this.getAllUsers.name);
+		return this.usersRepository.find().then((users) => {
+			if (users.length === 0) {
+				this.logger.log(
+					{ report: 'No User Found.' },
+					this.getAllUsers.name,
+				);
+				return [];
+			}
+			this.logger.log(
+				{ report: 'User(s) found.' },
+				this.getAllUsers.name,
+			);
+			return users.map((user) => new SerializedUser(user));
+		});
+	}
 
-  getUserById(id: number) {
-    return this.usersRepository.findOneBy({ id: id }).then((user) => {
-      if (user?.id) {
-        return new SerializedUser(user);
-      }
-      return null;
-    });
-  }
+	async getUserById(id: number) {
+		this.logger.log({ id: id }, this.getUserById.name);
+		const user = await this.usersRepository.findOneBy({ id: id });
+		if (user?.id) {
+			this.logger.log(
+				{ id: id, report: 'User found.' },
+				this.getUserById.name,
+			);
+			return user;
+		}
+		this.logger.log(
+			{ id: id, report: 'User not found.' },
+			this.getUserById.name,
+		);
+		return null;
+	}
 
-  getUserByEmail(email: string) {
-    return this.usersRepository.findOneBy({ email: email }).then((u) => {
-      if (u === null) {
-        return null;
-      }
-      return new SerializedUser(u);
-    });
-  }
+	async getUserByEmail(email: string) {
+		this.logger.log({ email: email }, this.getUserByEmail.name);
+		const user = await this.usersRepository.findOneBy({ email: email });
+		if (user?.id) {
+			this.logger.log(
+				{ email: email, report: 'User found.' },
+				this.getUserByEmail.name,
+			);
+			return user;
+		}
+		this.logger.log(
+			{ email: email, report: 'User not found.' },
+			this.getUserByEmail.name,
+		);
+		return null;
+	}
 
-  async updateUserRefreshToken(
-    id: number,
-    updateUserRefreshDto: UpdateUserRefreshTokenDto,
-  ) {
-    return await this.usersRepository.update({ id: id }, updateUserRefreshDto);
-  }
+	async updateUser(id: number, updateUserDto: UpdateUserDto) {
+		this.logger.log({ id: id }, this.updateUser.name);
+		const updateResult = await this.usersRepository.update(
+			{ id: id },
+			updateUserDto,
+		);
+		return updateResult;
+	}
 
-  createUser(user: CreateUserDto) {
-    const passwordHashed = encodePassword(user.password);
-    const newUser = this.usersRepository.create({
-      ...user,
-      firstName: captitaliseWord(user.firstName),
-      lastName: captitaliseWord(user.lastName),
-      password: passwordHashed,
-      refreshToken: null,
-    });
-    return this.usersRepository.save(newUser).then((u) => {
-      return new SerializedUser(u);
-    });
-  }
+	async createUser(user: CreateUserDto) {
+		const { password, email, ...customizedUser } = user;
+		this.logger.log(
+			{ user: customizedUser, report: 'Encoding the password.' },
+			this.createUser.name,
+		);
+		const passwordHashed = encodePassword(user.password);
+		this.logger.log(
+			{ user: customizedUser, report: 'Password encoded successfully.' },
+			this.createUser.name,
+		);
+		this.logger.log(
+			{ user: customizedUser, report: 'Creating the user...' },
+			this.createUser.name,
+		);
+		const newUser = this.usersRepository.create({
+			...user,
+			firstName: capitalizeWord(user.firstName),
+			lastName: capitalizeWord(user.lastName),
+			password: passwordHashed,
+			refreshToken: null,
+			lastLogin: null,
+		});
+		this.logger.log(
+			{
+				user: customizedUser,
+				report: 'Saving the created user in DB...',
+			},
+			this.createUser.name,
+		);
+		const savedUser = await this.usersRepository.save(newUser);
+		this.logger.log(
+			{
+				user: customizedUser,
+				report: 'Created User successfully saved.',
+			},
+			this.createUser.name,
+		);
+		return new SerializedUser(savedUser);
+	}
 
-  createGoogleUser(user: CreateGoogleUserDto) {
-    return this.usersRepository.save({
-      ...user,
-      firstName: captitaliseWord(user.firstName),
-      lastName: captitaliseWord(user.lastName),
-      refreshToken: null,
-    });
-  }
+	async createGoogleUser(user: CreateGoogleUserDto) {
+		const { password, email, ...customizedUser } = new SerializedUser(user);
+		this.logger.log(
+			{ user: customizedUser, report: 'Creating the user...' },
+			this.createGoogleUser.name,
+		);
+		const user_2 = await this.usersRepository.save({
+			...user,
+			firstName: capitalizeWord(user.firstName),
+			lastName: capitalizeWord(user.lastName),
+			refreshToken: null,
+			lastLogin: null,
+		});
+		this.logger.log(
+			{
+				user: customizedUser,
+				report: 'Created User successfully saved.',
+			},
+			this.createGoogleUser.name,
+		);
+		return new SerializedUser(user_2);
+	}
 }
