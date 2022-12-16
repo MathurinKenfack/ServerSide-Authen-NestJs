@@ -8,12 +8,17 @@ import { SerializedUser } from '../../types/User.serialized';
 import { CreateGoogleUserDto } from '../../dto/CreateGoogleUser.dto';
 import { capitalizeWord } from '../../../utils/helpers';
 import { UpdateUserDto } from '../../dto/UpdateUser.dto';
+import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../../../mail/services/mail/mail.service';
+import { SendUserMailDto } from 'src/users/dto/sendUserMail.dto';
 
 @Injectable()
 export class UsersService {
 	constructor(
 		@InjectRepository(User)
 		private usersRepository: Repository<User>,
+		private jwtService: JwtService,
+		private mailService: MailService,
 	) {}
 	private readonly logger = new Logger(UsersService.name);
 
@@ -130,6 +135,7 @@ export class UsersService {
 			firstName: capitalizeWord(user.firstName),
 			lastName: capitalizeWord(user.lastName),
 			refreshToken: null,
+			active: true,
 			lastLogin: null,
 		});
 		this.logger.log(
@@ -140,5 +146,29 @@ export class UsersService {
 			this.createGoogleUser.name,
 		);
 		return new SerializedUser(user_2);
+	}
+
+	async sendMailConfirmation(user: SendUserMailDto) {
+		this.logger.log(
+			{
+				user: user,
+				report: 'creating the confirm email token...',
+			},
+			this.sendMailConfirmation.name,
+		);
+
+		const token = await this.jwtService.signAsync(
+			{ id: user.id },
+			{ secret: process.env.CONFIRMATION_EMAIL_SECRET },
+		);
+		this.logger.log(
+			{ user: user, report: 'Confirm email token created.' },
+			this.sendMailConfirmation.name,
+		);
+		this.logger.log(
+			{ user: user, report: 'Sending the mail...' },
+			this.sendMailConfirmation.name,
+		);
+		await this.mailService.sendUserEmailConfirmation(user, token);
 	}
 }

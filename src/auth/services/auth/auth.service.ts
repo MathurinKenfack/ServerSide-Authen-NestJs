@@ -3,6 +3,7 @@ import {
 	ForbiddenException,
 	Inject,
 	Injectable,
+	InternalServerErrorException,
 	Logger,
 	NotFoundException,
 	UnauthorizedException,
@@ -23,6 +24,7 @@ import { JwtPayload } from '../../types/JWTPayload';
 import { MailService } from '../../../mail/services/mail/mail.service';
 import { ChangeUserPasswordDto } from 'src/users/dto/ChangeUserPassword.dto';
 import { env } from 'process';
+import { SendUserMailDto } from 'src/users/dto/sendUserMail.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,23 +41,41 @@ export class AuthService {
 		const userDB = await this.usersService.getUserByEmail(email);
 		if (userDB) {
 			this.logger.log(
-				{ email: email, report: 'User was found' },
+				{
+					email: email,
+					report: 'User was found, checking if user account is activated...',
+				},
 				this.validateUser.name,
 			);
-			const matched = comaparePasswords(password, userDB.password);
-			if (matched) {
+			if (userDB.active) {
 				this.logger.log(
-					{ email: email, report: 'Valid password' },
+					{
+						email: email,
+						report: 'User account is activate, checking the password...',
+					},
 					this.validateUser.name,
 				);
+				const matched = comaparePasswords(password, userDB.password);
+				if (matched) {
+					this.logger.log(
+						{ email: email, report: 'Valid password' },
+						this.validateUser.name,
+					);
 
-				return userDB;
+					return userDB;
+				} else {
+					this.logger.error(
+						{ email: email, report: 'Invalid password' },
+						this.validateUser.name,
+					);
+					throw new BadRequestException('Password is incorrect.');
+				}
 			} else {
 				this.logger.error(
-					{ email: email, report: 'Invalid password' },
+					{ email: email, report: 'Inactivated User account' },
 					this.validateUser.name,
 				);
-				throw new BadRequestException('Password is incorrect.');
+				throw new UnauthorizedException('Unactive account');
 			}
 		}
 		this.logger.error(
@@ -254,7 +274,7 @@ export class AuthService {
 		);
 		const userExists = await this.usersService.getUserByEmail(user.email);
 
-		if (!userExists) {
+		if (userExists?.id) {
 			this.logger.log(
 				{
 					email: user.email,
@@ -299,10 +319,41 @@ export class AuthService {
 		this.logger.log(
 			{
 				email: user.email,
-				report: 'User exist in DB, generating the tokens.',
+				report: 'User exist in DB, active his account if not active and generating the tokens.',
 			},
 			this.googleLoginUser.name,
 		);
+		if (!userExists.active) {
+			this.logger.log(
+				{
+					email: user.email,
+					report: 'User account not active. Activating it....',
+				},
+				this.googleLoginUser.name,
+			);
+			const activateResult = await this.usersService.updateUser(
+				userExists.id,
+				{ active: true },
+			);
+			if (activateResult?.affected) {
+				this.logger.log(
+					{
+						email: user.email,
+						report: 'User account activated.',
+					},
+					this.googleLoginUser.name,
+				);
+			} else {
+				this.logger.error(
+					{
+						email: user.email,
+						report: 'User account could not be activated.',
+					},
+					this.googleLoginUser.name,
+				);
+				throw new InternalServerErrorException();
+			}
+		}
 		const tokens = await this.getTokens({ id: userExists.id });
 		this.logger.log(
 			{
@@ -331,7 +382,9 @@ export class AuthService {
 			},
 			this.createResetPasswordToken.name,
 		);
-		const user = await this.usersService.getUserByEmail(userEmail);
+		const user = <SendUserMailDto>(
+			await this.usersService.getUserByEmail(userEmail)
+		);
 		if (user?.id) {
 			this.logger.log(
 				{

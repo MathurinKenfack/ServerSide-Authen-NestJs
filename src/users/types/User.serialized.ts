@@ -19,6 +19,9 @@ export class SerializedUser {
 	@Exclude()
 	lastLogin: Date | null;
 
+	@Exclude()
+	active: boolean;
+
 	constructor(partial: Partial<SerializedUser>) {
 		Object.assign(this, partial);
 	}

@@ -5,4 +5,5 @@ export interface UserI {
 	email: string;
 	password: string;
 	lastLogin: Date | null;
+	active: boolean;
 }

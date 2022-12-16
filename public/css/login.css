@@ -54,21 +54,35 @@
 	text-decoration: underline;
 }
 
+.input-block .signup-link {
+	text-decoration: none;
+	color: darkblue;
+}
+.input-block .signup-link:hover {
+	color: rgb(0, 51, 236);
+	text-decoration: underline;
+}
+
 .input-block .input-field.error {
 	border: 2px solid rgb(149, 23, 23);
 }
 
 .input-block .error-email,
-.input-block .error-password {
+.input-block .error-password,
+.input-block .error-first-name,
+.input-block .error-last-name {
 	display: none;
 }
 
 .input-block .error-email.active,
-.input-block .error-password.active {
+.input-block .error-password.active,
+.input-block .error-first-name.active,
+.input-block .error-last-name.active {
 	display: flex;
 	padding: 8px 10px;
 	margin: 8px 0px;
-	max-width: 320px;
+	min-width: 320px;
+	width: 100%;
 	font-size: 0.8em;
 	flex-direction: column;
 	background-color: rgb(228, 156, 156);
@@ -112,8 +126,19 @@
 	background-color: rgb(171, 234, 76);
 }
 
+.btn.btn-signup {
+	background-color: rgb(0, 193, 22);
+	color: white;
+}
+
+.btn.btn-signup:hover {
+	background-color: rgb(0, 143, 17);
+}
+
 .btn.btn-login:disabled,
-.btn.btn-login:disabled:hover {
+.btn.btn-login:disabled:hover,
+.btn.btn-signup:disabled,
+.btn.btn-signup:disabled:hover {
 	background-color: rgb(67, 67, 67);
 	color: white;
 }

@@ -10,10 +10,13 @@ export const STATUS_URL = AUH_URL + '/auth/status';
 export const SEND_RESET_MAIL = AUH_URL + '/auth/forgot_password';
 export const FORGOT_PASSWORD_URL = AUH_URL + '/forgot_password';
 export const RESET_PASSWORD_URL = AUH_URL + '/auth/user/reset_password';
+export const SIGN_UP_URL = AUH_URL + '/users/signup';
+export const SIGN_UP_PAGE_URL = AUH_URL + '/signup';
 
 export const loginAction = {
 	actionUrl: LOGIN_URL,
 	googleUrl: GOOGLE_URL,
+	signupUrl: SIGN_UP_PAGE_URL,
 	forgotPasswordUrl: FORGOT_PASSWORD_URL,
 	key: process.env.RECAPTCHA_SITE_KEY_TEST,
 };

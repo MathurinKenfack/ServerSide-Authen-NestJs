@@ -1,0 +1,110 @@
+<html>
+	<head>
+		<meta charset='utf-8' />
+		<title>Sign up</title>
+		<link rel='stylesheet' href='./css/style.css' />
+		<link rel='stylesheet' href='./css/login.css' />
+		<script type='text/javascript' src='./js/formValidation.js'></script>
+	</head>
+	<body>
+		<div class='container'>
+			<div class='content'>
+				<div class='form-modal'>
+					<span class='title-form'>Sign Up</span>
+					<form
+						class='form'
+						name='loginform'
+						action={{actionUrl}}
+						method='post'
+						id='login-form'
+					>
+						<div class='input-block'>
+							<label for='firstName' class='input-label'>First
+								Name</label>
+							<input
+								type='text'
+								name='firstName'
+								class='input-field'
+								min='3'
+								required
+								onchange='validateName(this);'
+								placeholder='e.g Joe'
+							/>
+							<span class='error-first-name'></span>
+						</div>
+						<div class='input-block'>
+							<label for='lastName' class='input-label'>Last Name</label>
+							<input
+								type='text'
+								name='lastName'
+								required
+								min='3'
+								class='input-field'
+								onchange='validateName(this);'
+								placeholder='e.g Smith'
+							/>
+							<span class='error-last-name'></span>
+						</div>
+						<div class='input-block'>
+							<label for='email' class='input-label'>Email</label>
+							<input
+								type='email'
+								name='email'
+								required
+								class='input-field'
+								onchange='validateEmailSignup(this);'
+								placeholder='e.g joesmith34@hotmail.net'
+							/>
+							<span class='error-email'></span>
+						</div>
+						<div class='input-block'>
+							<label
+								for='password'
+								class='input-label'
+							>Password</label>
+							<input
+								type='password'
+								name='password'
+								required
+								class='input-field'
+								onchange='validatePasswordSignup(this);'
+								placeholder='*******'
+							/>
+							<span class='error-password'></span>
+						</div>
+						<div class='input-block'>
+							<label
+								for='confirmPassword'
+								class='input-label'
+							>Confirm Password</label>
+							<input
+								type='password'
+								name='confirmPassword'
+								required
+								class='input-field'
+								onchange='validateConfirmPasswordSignup(this);'
+								placeholder='*******'
+							/>
+							<span class='error-password'></span>
+						</div>
+						<div class='input-block'>
+							<input
+								type='hidden'
+								name='_csrf'
+								value='{{csrf}}'
+							/>
+						</div>
+						<div class='form-btns'>
+							<input
+								type='submit'
+								value='Login'
+								class='btn btn-signup'
+								name='signup'
+							/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

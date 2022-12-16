@@ -59,18 +59,25 @@
 							>forgot your password?</a>
 						</div>
 						<div class='form-btns'>
-							<div
-								class='g-recaptcha'
-								data-sitekey='{{key}}'
-								data-callback='validateSubmit'
-								data-expired-callback='validateSubmit'
-							></div>
+							<div class='input-block center'>
+								<div
+									class='g-recaptcha'
+									data-sitekey='{{key}}'
+									data-callback='validateSubmit'
+									data-expired-callback='validateSubmit'
+								></div>
+							</div>
 							<input
 								type='submit'
 								value='Login'
 								class='btn btn-login'
 								name='submit'
 							/>
+							<div class='input-block center'>
+								<span>You don't have an account?</span>
+								<a href='{{signupUrl}}' class='signup-link'>sign
+									up</a>
+							</div>
 							<input
 								type='hidden'
 								name='_csrf'

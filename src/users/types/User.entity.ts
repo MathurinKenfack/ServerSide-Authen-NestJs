@@ -21,4 +21,7 @@ export class User {
 
 	@Column({ name: 'last_login', nullable: true, type: 'timestamptz' })
 	lastLogin: Date | null;
+
+	@Column({ default: false })
+	active: boolean;
 }

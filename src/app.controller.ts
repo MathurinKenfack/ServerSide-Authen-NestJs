@@ -6,6 +6,7 @@ import {
 	loginAction,
 	logoutAction,
 	SEND_RESET_MAIL,
+	SIGN_UP_URL,
 } from './utils/formActions';
 
 @Controller()
@@ -14,6 +15,14 @@ export class AppController {
 	root(@Req() request, @Res() response: Response) {
 		return response.render('login', {
 			...loginAction,
+			csrf: request.csrfToken(),
+		});
+	}
+
+	@Get('signup')
+	signup(@Req() request, @Res() response: Response) {
+		return response.render('signup', {
+			actionUrl: SIGN_UP_URL,
 			csrf: request.csrfToken(),
 		});
 	}
